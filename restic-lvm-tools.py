@@ -3,10 +3,11 @@
 # SPDX-License-Identifier: GPL-2.0-only
 
 import argparse
+import configparser
 import subprocess
 import os
+import sys
 import boto3
-import configparser
 
 # --- Configuration file ---
 
@@ -142,12 +143,12 @@ if __name__ == "__main__":
     if not any([args.backup_volume, args.dump_snapshots, args.restore_volume]):
         print("No action specified. Please use --backup-volume for backup, "
               "--dump-snapshots to list backups, or --restore-volume for restore.")
-        exit(1)
+        sys.exit(1)
 
     # Check if AWS credentials are set
     if not AWS_ACCESS_KEY_ID or not AWS_SECRET_ACCESS_KEY:
         print("AWS credentials not found in config file.")
-        exit(1)
+        sys.exit(1)
 
     # Create S3 client
     s3_client = boto3.client('s3', aws_access_key_id=AWS_ACCESS_KEY_ID, aws_secret_access_key=AWS_SECRET_ACCESS_KEY)
@@ -157,12 +158,12 @@ if __name__ == "__main__":
         s3_client.head_bucket(Bucket=BUCKET_NAME)
     except Exception as e:
         print(f"S3 bucket '{BUCKET_NAME}' does not exist or you do not have permission to access it.")
-        exit(1)
+        sys.exit(1)
 
     # Check if restic repository exists
     if not check_repository_exists():
         if not create_s3_repository():
-            exit(1)
+            sys.exit(1)
 
     try:
         # Backup LVM snapshot if the --backup-volume option is provided
