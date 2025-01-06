@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 
+import argparse
 import subprocess
 import os
 import boto3
@@ -114,6 +115,14 @@ def prune_old_backups():
 # --- Main execution ---
 
 if __name__ == "__main__":
+    parser = argparse.ArgumentParser(description="Restic Backup/Restore LVM volume.")
+    parser.add_argument("--backup-volume", action="store_true", help="Backup the specified LVM volume.")
+    args = parser.parse_args()
+
+    if not args.backup_volume:
+        print("No action specified. Please use --backup-volume for backup.")
+        exit(1)
+
     # Check if AWS credentials are set
     if not AWS_ACCESS_KEY_ID or not AWS_SECRET_ACCESS_KEY:
         print("AWS credentials not found in config file.")
@@ -135,19 +144,12 @@ if __name__ == "__main__":
             exit(1)
 
     try:
-        # Create LVM snapshot
-        create_lvm_snapshot()
-
-        # Backup LVM snapshot
-        backup_lvm_snapshot()
-
-        # Delete LVM snapshot
-        delete_lvm_snapshot()
-
-        # Prune old backups
-        prune_old_backups()
-
-        print("Backup completed successfully.")
+        # Backup LVM snapshot if the --backup-volume option is provided
+        if args.backup_volume:
+            create_lvm_snapshot()
+            backup_lvm_snapshot()
+            delete_lvm_snapshot()
+            prune_old_backups()
 
     except Exception as e:
         print(f"An error occurred during the backup process: {e}")
