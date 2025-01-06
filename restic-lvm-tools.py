@@ -96,6 +96,16 @@ def backup_lvm_snapshot():
     else:
         print("Backup failed.")
 
+def restore_lvm_snapshot(volume_id):
+    """Restore the LVM snapshot."""
+    cmd = f"""restic dump -r s3:https://s3.amazonaws.com/{BUCKET_NAME}/{RESTIC_REPOSITORY} {volume_id} stdin |
+           dd of="{RESTIC_REPOSITORY}" bs=4M"""
+    output = run_restic_command(cmd)
+    if output:
+        print(f"Restore successful: {output}")
+    else:
+        print("Restore failed.")
+
 def delete_lvm_snapshot():
     """Deletes the LVM snapshot."""
     cmd = f"lvremove -f {LVM_SNAPSHOT_NAME}"
@@ -165,6 +175,7 @@ if __name__ == "__main__":
         elif args.restore_volume:
             volume_id = args.restore_volume
             print(f"Restoring volume with ID: {volume_id}")
+            restore_lvm_snapshot(volume_id)
         elif args.dump_snapshots:
             dump_lvm_snapshot()
 
