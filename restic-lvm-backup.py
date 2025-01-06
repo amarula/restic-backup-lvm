@@ -153,6 +153,5 @@ if __name__ == "__main__":
 
     except Exception as e:
         print(f"An error occurred during the backup process: {e}")
-        # Optionally delete the snapshot if it was created successfully
-        if os.path.exists(f"/dev/mapper/{LVM_SNAPSHOT_NAME}"):
+        if os.path.exists(f"{LVM_SNAPSHOT_NAME}"):
             delete_lvm_snapshot()
