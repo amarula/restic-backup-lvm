@@ -126,12 +126,13 @@ def dump_lvm_snapshot():
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Restic Backup/Restore LVM volume.")
     parser.add_argument("--backup-volume", action="store_true", help="Backup the specified LVM volume.")
+    parser.add_argument("--restore-volume", type=str, help="Restore the specified LVM volume.")
     parser.add_argument("--dump-snapshots", action="store_true", help="List all the backup.")
     args = parser.parse_args()
 
-    if not any([args.backup_volume, args.dump_snapshots]):
+    if not any([args.backup_volume, args.dump_snapshots, args.restore_volume]):
         print("No action specified. Please use --backup-volume for backup, "
-              "--dump-snapshots to list backups.")
+              "--dump-snapshots to list backups, or --restore-volume for restore.")
         exit(1)
 
     # Check if AWS credentials are set
@@ -161,6 +162,9 @@ if __name__ == "__main__":
             backup_lvm_snapshot()
             delete_lvm_snapshot()
             prune_old_backups()
+        elif args.restore_volume:
+            volume_id = args.restore_volume
+            print(f"Restoring volume with ID: {volume_id}")
         elif args.dump_snapshots:
             dump_lvm_snapshot()
 
