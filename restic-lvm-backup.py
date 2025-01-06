@@ -114,15 +114,24 @@ def prune_old_backups():
     else:
         print("Failed to prune old backups.")
 
-# --- Main execution ---
+def dump_lvm_snapshot():
+    """Dump restic backup snapshot."""
+    cmd = f"restic -r s3:https://s3.amazonaws.com/{BUCKET_NAME}/{RESTIC_REPOSITORY} snapshots"
+    output = run_restic_command(cmd)
+    if output:
+        print(f"{output}")
+    else:
+        print("Failed to dump snapshots.")
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Restic Backup/Restore LVM volume.")
     parser.add_argument("--backup-volume", action="store_true", help="Backup the specified LVM volume.")
+    parser.add_argument("--dump-snapshots", action="store_true", help="List all the backup.")
     args = parser.parse_args()
 
-    if not args.backup_volume:
-        print("No action specified. Please use --backup-volume for backup.")
+    if not any([args.backup_volume, args.dump_snapshots]):
+        print("No action specified. Please use --backup-volume for backup, "
+              "--dump-snapshots to list backups.")
         exit(1)
 
     # Check if AWS credentials are set
@@ -152,6 +161,8 @@ if __name__ == "__main__":
             backup_lvm_snapshot()
             delete_lvm_snapshot()
             prune_old_backups()
+        elif args.dump_snapshots:
+            dump_lvm_snapshot()
 
     except Exception as e:
         print(f"An error occurred during the backup process: {e}")
