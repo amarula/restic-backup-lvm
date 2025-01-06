@@ -58,8 +58,8 @@ def create_s3_repository():
     if output:
         print(f"S3 repository created: {output}")
         return True
-    else:
-        print("Failed to create S3 repository.")
+
+    print("Failed to create S3 repository.")
     return False
 
 def check_repository_exists():
@@ -69,11 +69,9 @@ def check_repository_exists():
         subprocess.run(cmd, env=env, shell=True, check=True)
         return True
     except subprocess.CalledProcessError as e:
-        if e.returncode == 10:  # Repository not found
-            return False
-        else:
+        if e.returncode != 10:
             print(f"Error checking repository existence: {e}")
-            return False
+        return False
 
 def create_lvm_snapshot():
     """Creates a read-only LVM snapshot of the volume."""
